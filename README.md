@@ -51,7 +51,7 @@ docker images
 > ```
 >
 > _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
-> _Image IDs, created and sizes may vary._
+> _Some values may vary._
 
 ---
 
@@ -226,6 +226,149 @@ commands will detect it and remind you to do so if necessary.
 > [!NOTE]
 > Notice how the `terraform/.terraform.lock.hcl` file is automatically created on your host machine due to the volume mount.  
 > Also, the version `hashicorp/aws` might vary from above, but it will always start with `v6`.
+
+Lastly, run the following command:
+
+```shell
+docker compose run --rm terraform plan
+```
+
+You should see the following output:
+
+```text
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+```
+
+---
+
+## 3. Introducing and configuring LocalStack
+
+**Goal**: Create an environment to provision AWS resources without real credentials or incurring cost.
+
+Open the `docker-compose.yaml` file and add to the following under services:
+
+```yaml
+services:
+  localstack:
+    image: localstack/localstack:4
+```
+
+In the same file, update the Terraform container to the following:
+
+```yaml
+  terraform:
+    image: hashicorp/terraform:1.14
+    depends_on:
+      localstack:
+        condition: service_healthy
+    working_dir: /terraform
+    volumes:
+      - ./terraform:/terraform
+```
+
+> [!NOTE]
+> The LocalStack image comes with a predefined healthcheck.
+
+Run the following command:
+
+```shell
+docker compose run --rm terraform plan
+```
+
+> [!NOTE]
+> It will take a little longer than before, but you should get the same output as before.
+
+> [!TIP]
+> If you were to run this command again now, it would be quicker as LocalStack is already running in the background.  
+> You can confirm this by running `docker compose ps` where you'll see LocalStack listed.
+
+Create `main.tf` and add the following:
+
+```hcl
+resource "aws_s3_bucket" "this" {
+  bucket = "daemon-labs-bucket-example"
+}
+```
+
+> [!NOTE]
+> If we were to try and run a plan now we would receive an error stating there are no valid credentials.
+
+Open the `docker-compose.yaml` file and update the Terraform container to the following:
+
+```yaml
+  terraform:
+    image: hashicorp/terraform:1.14
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://localstack:4566
+    working_dir: /terraform
+    volumes:
+      - ./terraform:/terraform
+```
+
+Run the following command:
+
+```shell
+docker compose run --rm terraform plan
+```
+
+> [!NOTE]
+> At this stage you should now see Terraform wanting to add one resource.
+
+Run the following command, when prompted type `yes` and press enter:
+
+```shell
+docker compose run --rm terraform apply
+```
+
+> [!NOTE]
+> We've now hit another error, we need to configure the provider.
+
+Create `variables.tf` and add the following:
+
+```hcl
+variable "s3_use_path_style" {
+  description = "Set to true for LocalStack"
+  type        = bool
+  default     = false
+}
+```
+
+Create `providers.tf` and add the following:
+
+```hcl
+provider "aws" {
+  s3_use_path_style = var.s3_use_path_style
+}
+```
+
+Lastly, open `docker-compose.yaml` and add a new environment variable for the Terraform container:
+
+```yaml
+TF_VAR_s3_use_path_style: true
+```
+
+Run the following command, when prompted type `yes` and press enter:
+
+```shell
+docker compose run --rm terraform apply
+```
+
+You should now see the following output:
+
+```text
+aws_s3_bucket.this: Creating...
+aws_s3_bucket.this: Creation complete after 0s [id=daemon-labs-bucket-example]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+```
 
 ---
 
