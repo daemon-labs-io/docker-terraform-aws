@@ -111,18 +111,121 @@ docker compose run --rm terraform version
 
 ---
 
-## 2. Section two
+## 2. Initialising Terraform
 
-### Step one for section two
+**Goal:** Getting the basics in place.
 
-Instructions.
+> [!NOTE]
+> Terraform actually defines a [Style Guide](https://developer.hashicorp.com/terraform/language/style) around a lot of different areas.  
+> Where possible, always try to follow it.
 
-```text
-Any command that needs copying
+### Define the required versions
+
+Create a `terraform.tf` file and add the following:
+
+```hcl
+terraform {
+  required_version = "~> 1.14"
+}
 ```
 
-> [!TIP]
-> Any notes.
+Run the following command:
+
+```shell
+docker compose run --rm terraform init
+```
+
+You'll be comfronted with the following response:
+
+```text
+Terraform initialized in an empty directory!
+
+The directory has no Terraform configuration files. You may begin working
+with Terraform immediately by creating Terraform configuration files.
+```
+
+Open the `docker-compose.yaml` file and update to the following:
+
+```yaml
+services:
+  terraform:
+    image: hashicorp/terraform:1.14
+    working_dir: /terraform
+    volumes:
+      - ./terraform:/terraform
+```
+
+Run the following command again:
+
+```shell
+docker compose run --rm terraform init
+```
+
+Now you'll see the following response:
+
+```text
+Initializing the backend...
+Initializing provider plugins...
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+Open the `terraform.tf` file and update to the following:
+
+```hcl
+terraform {
+  required_version = "~> 1.14"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
+}
+```
+
+Run the following command again:
+
+```shell
+docker compose run --rm terraform init
+```
+
+Now you'll see the following response:
+
+```text
+Initializing the backend...
+Initializing provider plugins...
+- Finding hashicorp/aws versions matching "~> 6.0"...
+- Installing hashicorp/aws v6.28.0...
+- Installed hashicorp/aws v6.28.0 (signed by HashiCorp)
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+> [!NOTE]
+> Notice how the `terraform/.terraform.lock.hcl` file is automatically created on your host machine due to the volume mount.  
+> Also, the version `hashicorp/aws` might vary from above, but it will always start with `v6`.
 
 ---
 
