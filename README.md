@@ -11,7 +11,7 @@ Before beginning this workshop, please ensure your environment is correctly set 
 ➡️ **[Prerequisites guide](https://github.com/daemon-labs-resources/prerequisites)**
 
 <details>
-<summary>In-person workshop prerequisites</summary>
+<summary>⚠️ In-person workshop prerequisites</summary>
 
 ### Load Docker images
 
@@ -55,6 +55,7 @@ docker images
 >
 > _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
 > _Some values may vary._
+
 </details>
 
 ### Create project folder
@@ -342,7 +343,7 @@ Terraform has compared your real infrastructure against your configuration and f
 ```
 
 ---
-
+<!-- 
 ## 4. Provisioning resources
 
 **Goal**: TBC
@@ -535,4 +536,4 @@ You've just successfully:
 - Simulated a complete AWS environment locally using LocalStack.
 - Debugged complex infrastructure networking issues (DNS, Service Discovery).
 - Refactored raw infrastructure code into a reusable Module.
-- You have now provisioned AWS resources without needing an AWS account, internet access, or a credit card!
+- You have now provisioned AWS resources without needing an AWS account, internet access, or a credit card! -->
