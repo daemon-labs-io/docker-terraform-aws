@@ -170,7 +170,7 @@ mkdir ./terraform
 
 ### Add Terraform to Docker Compose
 
-Open the `docker-compose.yaml` file and append the following:
+Open the `docker-compose.yaml` file and under `services` append the following:
 
 ```yaml
   terraform:
@@ -184,6 +184,10 @@ Open the `docker-compose.yaml` file and append the following:
     volumes:
       - ./terraform:/terraform
 ```
+
+> [!NOTE]
+> There are scenarios where Terraform needs more than just Terraform, for example: Python.  
+> In these scenarios we would add a `build` attribute and create a `Dockerfile` to extend the base Terraform image.
 
 ### Image check
 
@@ -219,9 +223,9 @@ with Terraform immediately by creating Terraform configuration files.
 > Terraform actually defines a [Style Guide](https://developer.hashicorp.com/terraform/language/style) around a lot of different areas.  
 > Where possible, always try to follow it.
 
-### Define the required versions
+### Define the required versions and provider
 
-Create a `terraform.tf` file and add the following:
+Create a `terraform.tf` file in the **terraform** and add the following:
 
 ```hcl
 terraform {
@@ -235,6 +239,21 @@ terraform {
   }
 }
 ```
+
+Create a `providers.tf` file in the **terraform** and add the following:
+
+```hcl
+provider "aws" {
+  default_tags {
+    tags = {
+      provisioner = "Terraform"
+    }
+  }
+}
+```
+
+> [!TIP]
+> By definind the `default_tags` you will see that Terraform will automatically add these tags to every applicable resource.
 
 Run the following command:
 
@@ -283,3 +302,241 @@ No changes. Your infrastructure matches the configuration.
 
 Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
 ```
+
+---
+
+## 3. Provision resources
+
+**Goal:** Provision S3 bucket(s) and verify they exist
+
+### Resolve a LocalStack quirk
+
+Open the `docker-compose.yaml` file in the root of the project and add this `environment` section to the Terraform container:
+
+```yaml
+environment:
+  TF_VAR_s3_use_path_style: true
+```
+
+Create a `variables.tf` file in the **terraform** directory and add the following:
+
+```hcl
+variable "s3_use_path_style" {
+  description = "Set to true for LocalStack"
+  type        = bool
+  default     = false
+}
+```
+
+Open the `providers.tf` file in the **terraform** directory and update the provider to the following:
+
+```hcl
+provider "aws" {
+  s3_use_path_style = var.s3_use_path_style
+
+  default_tags {
+    tags = {
+      provisioner = "Terraform"
+    }
+  }
+}
+```
+
+### Create an S3 bucket
+
+Create a `main.tf` file in the **terraform** directory and add the following:
+
+```hcl
+resource "aws_s3_bucket" "workshop_bucket" {
+  bucket = "daemon-labs-workshop-bucket"
+}
+
+resource "aws_s3_bucket_public_access_block" "workshop_bucket" {
+  bucket = aws_s3_bucket.workshop_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+```
+
+Create a `terraform/outputs.tf` file and add the following:
+
+```hcl
+output "workshop_bucket_arn" {
+  value = aws_s3_bucket.workshop_bucket.arn
+}
+```
+
+Run the following command:
+
+```shell
+docker compose run --rm terraform apply
+```
+
+> [!NOTE]
+> Terraform will print out the `plan` and prompt you to accept the changes.
+
+Type `yes` and pressing enter and you'll then see the following output:
+
+```text
+aws_s3_bucket.workshop_bucket: Creating...
+aws_s3_bucket.workshop_bucket: Creation complete after 0s [id=daemon-labs-workshop-bucket]
+
+Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+workshop_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-bucket"
+```
+
+> [!NOTE]
+> Notice how Terraform has printed out an `Outputs` section with our bucket ARN, 
+> it's worth noting that Terraform is clever enough to not print out sensitive data here.  
+> If we wanted to "play safe" could run `plan` first, but for our purposes, 
+> because there is the prompt we can go straight to this.
+
+### Verify the bucket exists
+
+Run the following command:
+
+```shell
+docker compose run --rm aws s3 ls
+```
+
+You'll see something similar to the following response:
+
+```text
+2026-01-28 20:26:31 daemon-labs-workshop-bucket
+```
+
+---
+
+## 4. Introducing modules
+
+**Goal:** Understand how modules can help speed up development.
+
+### Add and load the S3 module
+
+Open the `terraform/main.tf` file and append the following:
+
+```hcl
+module "s3_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 5.0"
+
+  bucket = "daemon-labs-workshop-module-bucket"
+}
+```
+
+> [!NOTE]
+> Modules work in a similar way to providers and need downloading before they can be used.
+
+Run the following command:
+
+```shell
+docker compose run --rm terraform init
+```
+
+You'll see something similar to the following response:
+
+```text
+Initializing the backend...
+Initializing modules...
+Downloading registry.terraform.io/terraform-aws-modules/s3-bucket/aws 5.10.0 for s3_bucket...
+- s3_bucket in .terraform/modules/s3_bucket
+Initializing provider plugins...
+- Reusing previous version of hashicorp/aws from the dependency lock file
+- Using previously-installed hashicorp/aws v6.28.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+### Applying to module
+
+Open `terraform/outputs.tf` and append the following:
+
+```hcl
+output "workshop_module_bucket_arn" {
+  value = module.s3_bucket.s3_bucket_arn
+}
+```
+
+Run the following command:
+
+```shell
+docker compose run --rm terraform apply -auto-approve
+```
+
+> [!WARNING]
+> We're living dangerously here by using the `-auto-approve` flag,
+> this is not recommended on a day-to-day or real life scenario.
+
+You'll then see the following output:
+
+```text
+module.s3_bucket.aws_s3_bucket.this[0]: Creating...
+module.s3_bucket.aws_s3_bucket.this[0]: Creation complete after 0s [id=daemon-labs-workshop-module-bucket]
+module.s3_bucket.aws_s3_bucket_public_access_block.this[0]: Creating...
+module.s3_bucket.aws_s3_bucket_public_access_block.this[0]: Creation complete after 0s [id=daemon-labs-workshop-module-bucket]
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+workshop_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-bucket"
+workshop_module_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-module-bucket"
+```
+
+---
+
+## 5. Cleanup
+
+**Goal:** Destroy resources, remove containers and reclaim disk space.
+
+Since we are done with the workshop, let's remove the resources we created.
+
+Runn the following command:
+
+```
+docker compose run --rm terraform destroy
+```
+
+> [!NOTE]
+> By doing this first, we make sure our state file has been updated accordingly.
+
+Run the following command:
+
+```shell
+docker compose ps -a
+```
+
+> [!NOTE]
+> Even though they're not all running, we still have this images sitting there doing nothing.
+
+Run the following command:
+
+```shell
+docker compose images
+```
+
+> [!NOTE]
+> We also have these images which are taking up resources on our machine.
+
+Run the following command:
+
+```shell
+docker compose down --rmi all
+```
+
+> [!NOTE]
+> This stops all services, removes the containers/networks, and deletes all images used by this project.
