@@ -444,26 +444,12 @@ Run the following command:
 docker compose run --rm terraform init
 ```
 
-You'll see something similar to the following response:
+You'll see something similar to this within the response:
 
 ```text
-Initializing the backend...
 Initializing modules...
 Downloading registry.terraform.io/terraform-aws-modules/s3-bucket/aws 5.10.0 for s3_bucket...
 - s3_bucket in .terraform/modules/s3_bucket
-Initializing provider plugins...
-- Reusing previous version of hashicorp/aws from the dependency lock file
-- Using previously-installed hashicorp/aws v6.28.0
-
-Terraform has been successfully initialized!
-
-You may now begin working with Terraform. Try running "terraform plan" to see
-any changes that are required for your infrastructure. All Terraform commands
-should now work.
-
-If you ever set or change modules or backend configuration for Terraform,
-rerun this command to reinitialize your working directory. If you forget, other
-commands will detect it and remind you to do so if necessary.
 ```
 
 ### Applying to module
