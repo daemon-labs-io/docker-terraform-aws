@@ -203,6 +203,8 @@ docker compose run --rm terraform version
 > [!NOTE]
 > The output should start with `Terraform v1.14` followed by the latest patch version.
 
+<!--  -->
+
 > [!TIP]
 > The `--rm` flag tells Docker to remove the container once it has finished/completed.  
 > If you run `docker compose ps -a` you'll currently see nothing is listed, if you were to not use `--rm` you would see one container listed.
@@ -510,7 +512,7 @@ Since we are done with the workshop, let's remove the resources we created.
 
 Run the following command:
 
-```
+```shell
 docker compose run --rm terraform destroy
 ```
 
