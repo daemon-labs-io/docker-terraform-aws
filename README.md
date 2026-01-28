@@ -13,7 +13,7 @@ Before beginning this workshop, please ensure your environment is correctly set 
 <details>
 <summary>⚠️ In-person workshop prerequisites</summary>
 
-### Load Docker images
+<!-- ### Load Docker images -->
 
 > [!CAUTION]  
 > This only works when attending a workshop in person.  
@@ -34,7 +34,7 @@ Run the following command:
 docker load -i ~/Downloads/workshop-images.tar
 ```
 
-### Validate Docker images
+<!-- ### Validate Docker images -->
 
 Run the following command:
 
