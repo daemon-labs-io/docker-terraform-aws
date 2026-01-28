@@ -1,6 +1,6 @@
 # Learn to provision AWS resources with Terraform and Docker
 
-Learn how to architect and deploy AWS resources locally using Terraform, Docker, and LocalStack. 
+Learn how to architect and deploy AWS resources locally using Terraform, Docker, and LocalStack.
 This hands-on workshop covers the end-to-end lifecycle of Infrastructure as Code (IaC) without the need for an AWS account or cloud costs.
 
 ---
@@ -49,9 +49,9 @@ docker images
 > ```shell
 > $ docker images
 > IMAGE                      ID             DISK USAGE   CONTENT SIZE   EXTRA
-> amazon/aws-cli:latest      71a8f2297aa9        463MB             0B    U   
-> hashicorp/terraform:1.14   fad9352aeadb        123MB             0B    U   
-> localstack/localstack:4    badd0f2d7269       1.21GB             0B    U   
+> amazon/aws-cli:latest      71a8f2297aa9        463MB             0B    U
+> hashicorp/terraform:1.14   fad9352aeadb        123MB             0B    U
+> localstack/localstack:4    badd0f2d7269       1.21GB             0B    U
 > ```
 >
 > _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
@@ -117,7 +117,7 @@ services:
 ```
 
 > [!NOTE]
-> The LocalStack image comes with a predefined healthcheck, by adding the `depends_on` to our AWS CLI container, 
+> The LocalStack image comes with a predefined healthcheck, by adding the `depends_on` to our AWS CLI container,
 > it means it won't do anything until LocalStack is ready.
 
 ---
@@ -134,7 +134,7 @@ docker compose run --rm aws --version
 
 > [!NOTE]
 > You should see a response that starts with `aws-cli/2` which is followed by `Python/3` and lastly some `Linux` distribution details.
-> 
+>
 > As this is the first time we have used our stack and we have the dependency on LocalStack, it will take slightly longer.  
 > After the first time, if we run this again it will be much quicker.
 
@@ -148,9 +148,9 @@ You should see the following response:
 
 ```json
 {
-    "UserId": "AKIAIOSFODNN7EXAMPLE",
-    "Account": "000000000000",
-    "Arn": "arn:aws:iam::000000000000:root"
+  "UserId": "AKIAIOSFODNN7EXAMPLE",
+  "Account": "000000000000",
+  "Arn": "arn:aws:iam::000000000000:root"
 }
 ```
 
@@ -176,16 +176,16 @@ mkdir ./terraform
 Open the `docker-compose.yaml` file and under `services` append the following:
 
 ```yaml
-  terraform:
-    image: hashicorp/terraform:1.14
-    depends_on:
-      localstack:
-        condition: service_healthy
-    env_file:
-      - ./.env
-    working_dir: /terraform
-    volumes:
-      - ./terraform:/terraform
+terraform:
+  image: hashicorp/terraform:1.14
+  depends_on:
+    localstack:
+      condition: service_healthy
+  env_file:
+    - ./.env
+  working_dir: /terraform
+  volumes:
+    - ./terraform:/terraform
 ```
 
 > [!NOTE]
@@ -395,9 +395,9 @@ workshop_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-bucket"
 ```
 
 > [!NOTE]
-> Notice how Terraform has printed out an `Outputs` section with our bucket ARN, 
+> Notice how Terraform has printed out an `Outputs` section with our bucket ARN,
 > it's worth noting that Terraform is clever enough to not print out sensitive data here.  
-> If we wanted to "play safe" could run `plan` first, but for our purposes, 
+> If we wanted to "play safe" could run `plan` first, but for our purposes,
 > because there is the prompt we can go straight to this.
 
 ### Verify the bucket exists
