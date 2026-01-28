@@ -1,6 +1,7 @@
 # Learn to provision AWS resources with Terraform and Docker
 
-Workshop description.
+Learn how to architect and deploy AWS resources locally using Terraform, Docker, and LocalStack. 
+This hands-on workshop covers the end-to-end lifecycle of Infrastructure as Code (IaC) without the need for an AWS account or cloud costs.
 
 ---
 
@@ -14,8 +15,6 @@ Before beginning this workshop, please ensure your environment is correctly set 
 
 <details>
 <summary>If you are in an in-person workshop, expand this section.</summary>
-
-<!-- ### Load Docker images -->
 
 > [!CAUTION]  
 > This only works when attending a workshop in person.  
@@ -81,7 +80,7 @@ mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
 
 ## 1. Setup the "fake cloud"
 
-**Goal:** Spin up a fully configured local AWS environment.
+**Goal:** Establish the project foundation.
 
 ### Create an environment variables file
 
@@ -121,7 +120,11 @@ services:
 > The LocalStack image comes with a predefined healthcheck, by adding the `depends_on` to our AWS CLI container, 
 > it means it won't do anything until LocalStack is ready.
 
-### Confirm the AWS CLI is working as expected
+---
+
+## 2. Identity verification
+
+**Goal:** Confirm connectivity and explore the simulated AWS account.
 
 Run the following command:
 
@@ -156,9 +159,9 @@ You should see the following response:
 
 ---
 
-## 2. Initialising Terraform
+## 3. Initialising Terraform
 
-**Goal:** Get a working Terraform container running.
+**Goal:** Initialise the IaC engine.
 
 ### Create the Terraform subdirectory
 
@@ -225,7 +228,7 @@ with Terraform immediately by creating Terraform configuration files.
 
 ### Define the required versions and provider
 
-Create a `terraform.tf` file in the **terraform** and add the following:
+Create a `terraform/terraform.tf` file and add the following:
 
 ```hcl
 terraform {
@@ -240,7 +243,7 @@ terraform {
 }
 ```
 
-Create a `providers.tf` file in the **terraform** and add the following:
+Create a `terraform/providers.tf` file and add the following:
 
 ```hcl
 provider "aws" {
@@ -305,9 +308,9 @@ Terraform has compared your real infrastructure against your configuration and f
 
 ---
 
-## 3. Provision resources
+## 4. Provision resources
 
-**Goal:** Provision S3 bucket(s) and verify they exist
+**Goal:** Deploy your first resource and solve environment quirks.
 
 ### Resolve a LocalStack quirk
 
@@ -318,7 +321,7 @@ environment:
   TF_VAR_s3_use_path_style: true
 ```
 
-Create a `variables.tf` file in the **terraform** directory and add the following:
+Create a `terraform/variables.tf` file and add the following:
 
 ```hcl
 variable "s3_use_path_style" {
@@ -328,7 +331,7 @@ variable "s3_use_path_style" {
 }
 ```
 
-Open the `providers.tf` file in the **terraform** directory and update the provider to the following:
+Open the `terraform/providers.tf` file and update the provider to the following:
 
 ```hcl
 provider "aws" {
@@ -344,7 +347,7 @@ provider "aws" {
 
 ### Create an S3 bucket
 
-Create a `main.tf` file in the **terraform** directory and add the following:
+Create a `terraform/main.tf` file and add the following:
 
 ```hcl
 resource "aws_s3_bucket" "workshop_bucket" {
@@ -413,9 +416,9 @@ You'll see something similar to the following response:
 
 ---
 
-## 4. Introducing modules
+## 5. Scaling with modules
 
-**Goal:** Understand how modules can help speed up development.
+**Goal:** Upgrade to professional, community-maintained code.
 
 ### Add and load the S3 module
 
@@ -499,13 +502,13 @@ workshop_module_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-module-bucket"
 
 ---
 
-## 5. Cleanup
+## 6. Cleanup
 
 **Goal:** Destroy resources, remove containers and reclaim disk space.
 
 Since we are done with the workshop, let's remove the resources we created.
 
-Runn the following command:
+Run the following command:
 
 ```
 docker compose run --rm terraform destroy
@@ -540,3 +543,15 @@ docker compose down --rmi all
 
 > [!NOTE]
 > This stops all services, removes the containers/networks, and deletes all images used by this project.
+
+---
+
+## 🎉 Congratulations
+
+You've successfully gone from an empty folder to a fully orchestrated local cloud!
+By completing this workshop, you have mastered:
+
+- ☁️ **Local Cloud Simulation:** Using LocalStack to emulate AWS without the costs, risks, or credentials.
+- 🏗️ **Infrastructure as Code:** Managing the full lifecycle of resources using Terraform init, plan, and apply.
+- 🐳 **Environment Orchestration:** Using Docker Compose to bridge the gap between your local code and the simulated cloud.
+- 📦 **Modular Architecture:** Leveraging Community Modules to deploy complex, best-practice infrastructure in seconds.
