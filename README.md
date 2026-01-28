@@ -11,50 +11,50 @@ Before beginning this workshop, please ensure your environment is correctly set 
 ➡️ **[Prerequisites guide](https://github.com/daemon-labs-resources/prerequisites)**
 
 <details>
-    <summary>In-person workshop prerequisites</summary>
-    
-    ### Load Docker images
+<summary>In-person workshop prerequisites</summary>
 
-    > [!CAUTION]
-    > This only works when attending a workshop in person.  
-    > Due to having a number of people trying to retrieve Docker images at the same time, this allows for a more efficient way.
-    >
-    > If you are **NOT** in an in-person workshop, continue to the next step, Docker images will be pulled as needed.
+### Load Docker images
 
-    Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
+> [!CAUTION]
+> This only works when attending a workshop in person.  
+> Due to having a number of people trying to retrieve Docker images at the same time, this allows for a more efficient way.
+>
+> If you are **NOT** in an in-person workshop, continue to the next step, Docker images will be pulled as needed.
 
-    When you see the file listing, download the `workshop-images.tar` file.
+Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
 
-    > [!WARNING]
-    > Your browser may block the download initially, when prompted, allow it to download.
+When you see the file listing, download the `workshop-images.tar` file.
 
-    Run the following command:
+> [!WARNING]
+> Your browser may block the download initially, when prompted, allow it to download.
 
-    ```shell
-    docker load -i ~/Downloads/workshop-images.tar
-    ```
+Run the following command:
 
-    ### Validate Docker images
+```shell
+docker load -i ~/Downloads/workshop-images.tar
+```
 
-    Run the following command:
+### Validate Docker images
 
-    ```shell
-    docker images
-    ```
+Run the following command:
 
-    > [!NOTE]
-    > You should now see three images listed.
-    >
-    > ```shell
-    > $ docker images
-    > IMAGE                      ID             DISK USAGE   CONTENT SIZE   EXTRA
-    > amazon/aws-cli:latest      71a8f2297aa9        463MB             0B    U   
-    > hashicorp/terraform:1.14   fad9352aeadb        123MB             0B    U   
-    > localstack/localstack:4    badd0f2d7269       1.21GB             0B    U   
-    > ```
-    >
-    > _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
-    > _Some values may vary._
+```shell
+docker images
+```
+
+> [!NOTE]
+> You should now see three images listed.
+>
+> ```shell
+> $ docker images
+> IMAGE                      ID             DISK USAGE   CONTENT SIZE   EXTRA
+> amazon/aws-cli:latest      71a8f2297aa9        463MB             0B    U   
+> hashicorp/terraform:1.14   fad9352aeadb        123MB             0B    U   
+> localstack/localstack:4    badd0f2d7269       1.21GB             0B    U   
+> ```
+>
+> _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
+> _Some values may vary._
 </details>
 
 ### Create project folder
