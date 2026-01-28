@@ -10,8 +10,10 @@ Before beginning this workshop, please ensure your environment is correctly set 
 
 ➡️ **[Prerequisites guide](https://github.com/daemon-labs-resources/prerequisites)**
 
+### ⚠️ In-person workshop prerequisites
+
 <details>
-<summary>⚠️ In-person workshop prerequisites</summary>
+<summary>If you are in an in-person workshop, expand this section.</summary>
 
 <!-- ### Load Docker images -->
 
