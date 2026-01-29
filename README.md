@@ -41,11 +41,11 @@ mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
 
 ####
 
-Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
+Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>` in your browser.
 
 #### Load Docker images
 
-When you see the file listing, download the `workshop-images.tar` file.
+Download the `workshop-images.tar` file.
 
 > [!WARNING]
 > Your browser may block the download initially, when prompted, allow it to download.
@@ -78,7 +78,24 @@ docker images
 
 #### Create a Terraform mirror
 
-Create a `.terraformrc` file in the **root** of your project.
+Download the `terraform-plugins.tar` file.
+
+> [!WARNING]
+> Your browser may block the download initially, when prompted, allow it to download.
+
+Move the tar to your project directory:
+
+```shell
+mv ~/Downloads/terraform-plugins.tar ./terraform-plugins.tar
+```
+
+Run the following commands (or similar):
+
+```shell
+mkdir -p terraform-mirror && tar -xvzf terraform-plugins.tar -C terraform-mirror
+```
+
+Create a `terraform.rc` file in the **root** of your project.
 
 ```
 provider_installation {
@@ -206,7 +223,7 @@ terraform:
 > If you are currently in an in-person workshop you need to add two more volumes:
 >
 > ```yaml
-> - ./.terraformrc:/root/.terraformrc:ro
+> - ./terraform.rc:/root/.terraformrc:ro
 > - ./terraform-mirror:/terraform/mirror:ro
 > ```
 
@@ -282,7 +299,7 @@ provider "aws" {
 ```
 
 > [!TIP]
-> By definind the `default_tags` you will see that Terraform will automatically add these tags to every applicable resource.
+> By definining the `default_tags` you will see that Terraform will automatically add these tags to every applicable resource.
 
 Run the following command:
 
@@ -538,7 +555,7 @@ This is a JSON file that acts as the single source of truth for your infrastruct
 
 > [!IMPORTANT]
 > In a real-world team environment, you would never keep this file on your local machine.  
-> You would store it in a remote "Backend" (like an actual S3 bucket) so your teammates can access and collaborate the same state.
+> You would store it in a remote "Backend" (like an actual S3 bucket) so your teammates can access and collaborate on same state.
 
 ### The "Drift" Challenge
 
