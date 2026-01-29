@@ -463,8 +463,14 @@ module "s3_bucket" {
 ```
 
 > [!IMPORTANT]
-> If you are currently in an in-person workshop you need to replace the `source` and the `version` with the following:  
-> `source = "/terraform/mirror/modules/s3-bucket"`
+> If you are currently in an in-person workshop you need to use the following instead:
+> ```hcl
+> module "s3_bucket" {
+>   source = "/terraform/mirror/modules/s3-bucket"
+>
+>   bucket = "daemon-labs-workshop-module-bucket"
+> }
+> ```
 
 <!--  -->
 
