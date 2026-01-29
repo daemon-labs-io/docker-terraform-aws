@@ -206,7 +206,7 @@ terraform:
     - ./terraform:/terraform
 ```
 
-> [!WARNING]
+> [!IMPORTANT]
 > If you are currently in an in-person workshop you need to add two more volumes:  
 > `./terraform.rc:/root/.terraformrc:ro`
 > `./terraform-mirror:/terraform/mirror:ro`  
@@ -460,7 +460,7 @@ module "s3_bucket" {
 }
 ```
 
-> [!WARNING]
+> [!IMPORTANT]
 > If you are currently in an in-person workshop you need to replace the `source` and the `version` with the following:  
 > `source = "/terraform/mirror/modules/s3-bucket"`
 
