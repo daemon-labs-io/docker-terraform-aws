@@ -78,7 +78,7 @@ docker images
 
 #### Create a Terraform mirror
 
-Create a `terraform.rc` file in the **root** of your project
+Create a `.terraformrc` file in the **root** of your project
 
 ```
 provider_installation {
@@ -209,7 +209,7 @@ terraform:
 > [!IMPORTANT]
 > If you are currently in an in-person workshop you need to add two more volumes:  
 > ```yaml
-> - ./terraform.rc:/root/.terraformrc:ro
+> - ./.terraformrc:/root/.terraformrc:ro
 > - ./terraform-mirror:/terraform/mirror:ro
 > ```
 
