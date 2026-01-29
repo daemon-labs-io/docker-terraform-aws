@@ -39,7 +39,7 @@ mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
 <details>
 <summary>If you are in an in-person workshop, expand this section.</summary>
 
-#### 
+####
 
 Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
 
@@ -203,7 +203,8 @@ terraform:
 ```
 
 > [!IMPORTANT]
-> If you are currently in an in-person workshop you need to add two more volumes:  
+> If you are currently in an in-person workshop you need to add two more volumes:
+>
 > ```yaml
 > - ./.terraformrc:/root/.terraformrc:ro
 > - ./terraform-mirror:/terraform/mirror:ro
@@ -460,6 +461,7 @@ module "s3_bucket" {
 
 > [!IMPORTANT]
 > If you are currently in an in-person workshop you need to use the following instead:
+>
 > ```hcl
 > module "s3_bucket" {
 >   source = "/terraform/mirror/modules/s3-bucket"
@@ -534,7 +536,7 @@ workshop_module_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-module-bucket"
 Open terraform/terraform.tfstate in your code editor.  
 This is a JSON file that acts as the single source of truth for your infrastructure.
 
-> [!IMPORTANT] 
+> [!IMPORTANT]
 > In a real-world team environment, you would never keep this file on your local machine.  
 > You would store it in a remote "Backend" (like an actual S3 bucket) so your teammates can access and collaborate the same state.
 
