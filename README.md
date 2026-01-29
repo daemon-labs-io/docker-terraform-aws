@@ -78,7 +78,7 @@ docker images
 
 #### Create a Terraform mirror
 
-Create a `.terraformrc` file in the **root** of your project
+Create a `.terraformrc` file in the **root** of your project.
 
 ```
 provider_installation {
@@ -96,7 +96,7 @@ provider_installation {
 
 ---
 
-## 1. Setup the "fake cloud"
+## 1. Setup and identity
 
 **Goal:** Establish the project foundation.
 
@@ -138,11 +138,7 @@ services:
 > The LocalStack image comes with a predefined healthcheck, by adding the `depends_on` to our AWS CLI container,
 > it means it won't do anything until LocalStack is ready.
 
----
-
-## 2. Identity verification
-
-**Goal:** Confirm connectivity and explore the simulated AWS account.
+### Identity verification
 
 Run the following command:
 
@@ -177,7 +173,7 @@ You should see the following response:
 
 ---
 
-## 3. Initialising Terraform
+## 2. Initialising Terraform
 
 **Goal:** Initialise the IaC engine.
 
@@ -337,7 +333,7 @@ Terraform has compared your real infrastructure against your configuration and f
 
 ---
 
-## 4. Provision resources
+## 3. Provision resources
 
 **Goal:** Deploy your first resource and solve environment quirks.
 
@@ -445,7 +441,7 @@ You'll see something similar to the following response:
 
 ---
 
-## 5. Scaling with modules
+## 4. Scaling with modules
 
 **Goal:** Upgrade to professional, community-maintained code.
 
@@ -526,6 +522,41 @@ Outputs:
 workshop_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-bucket"
 workshop_module_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-module-bucket"
 ```
+
+---
+
+## 5. Understanding state
+
+**Goal:** Peek under the hood of the Terraform engine.
+
+### Inspect the "Brain" of Terraform
+
+Open terraform/terraform.tfstate in your code editor.  
+This is a JSON file that acts as the single source of truth for your infrastructure.
+
+> [!IMPORTANT] 
+> In a real-world team environment, you would never keep this file on your local machine.  
+> You would store it in a remote "Backend" (like an actual S3 bucket) so your teammates can access and collaborate the same state.
+
+### The "Drift" Challenge
+
+Terraform doesn't just "run" code; it reconciles it. Let's try to "break" the infrastructure manually and see if Terraform notices.
+
+Run the following command:
+
+```shell
+docker compose run --rm aws s3 rb s3://daemon-labs-workshop-bucket
+```
+
+Now run a Terraform plan using the following command:
+
+```shell
+docker compose run --rm terraform plan
+```
+
+> [!NOTE]
+> Terraform compared your Code (main.tf) against your State (terraform.tfstate), then checked the Real World (LocalStack).  
+> It noticed the bucket is gone and will offer to recreate it to bring the world back into alignment.
 
 ---
 
