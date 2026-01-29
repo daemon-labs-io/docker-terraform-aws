@@ -208,8 +208,10 @@ terraform:
 
 > [!IMPORTANT]
 > If you are currently in an in-person workshop you need to add two more volumes:  
-> `./terraform.rc:/root/.terraformrc:ro`  
-> `./terraform-mirror:/terraform/mirror:ro`  
+> ```yaml
+> - ./terraform.rc:/root/.terraformrc:ro
+> - ./terraform-mirror:/terraform/mirror:ro
+> ```
 
 <!--  -->
 
