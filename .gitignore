@@ -1,5 +1,8 @@
 *
+!_facilitator
+!_facilitator/**/*
 !.github
 !.github/**/*
 !.gitignore
 !*.md
+*.tar

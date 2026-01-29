@@ -11,20 +11,41 @@ Before beginning this workshop, please ensure your environment is correctly set 
 
 ➡️ **[Prerequisites guide](https://github.com/daemon-labs-resources/prerequisites)**
 
+### Create project folder
+
+Create a new folder for your project:
+
+```shell
+mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
+```
+
+> [!NOTE]
+> You can either create this via a terminal window or your file explorer.
+
+### Open the new folder in your code editor
+
+> [!TIP]
+> If you are using VSCode, we can now do everything from within the code editor.  
+> You can open the terminal pane via Terminal -> New Terminal.
+
 ### ⚠️ In-person workshop prerequisites
+
+> [!CAUTION]  
+> **This only works when attending a workshop in person.**  
+> Due to having a number of people trying to retrieve Docker images and Terraform providers/modules at the same time, this allows for a more efficient way.
+>
+> If you are **NOT** in an in-person workshop, continue to the next step, Docker images and Terraform providers/modules will be downloaded as needed.
 
 <details>
 <summary>If you are in an in-person workshop, expand this section.</summary>
 
-> [!CAUTION]  
-> This only works when attending a workshop in person.  
-> Due to having a number of people trying to retrieve Docker images at the same time, this allows for a more efficient way.
->
-> If you are **NOT** in an in-person workshop, continue to the next step, Docker images will be pulled as needed.
+####
 
-Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
+Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>` in your browser.
 
-When you see the file listing, download the `workshop-images.tar` file.
+#### Load Docker images
+
+Download the `workshop-images.tar` file.
 
 > [!WARNING]
 > Your browser may block the download initially, when prompted, allow it to download.
@@ -34,8 +55,6 @@ Run the following command:
 ```shell
 docker load -i ~/Downloads/workshop-images.tar
 ```
-
-<!-- ### Validate Docker images -->
 
 Run the following command:
 
@@ -57,28 +76,44 @@ docker images
 > _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
 > _Some values may vary._
 
-</details>
+#### Create a Terraform mirror
 
-### Create project folder
+Download the `terraform-plugins.tar` file.
 
-Create a new folder for your project:
+> [!WARNING]
+> Your browser may block the download initially, when prompted, allow it to download.
+
+Move the tar to your project directory:
 
 ```shell
-mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
+mv ~/Downloads/terraform-plugins.tar ./terraform-plugins.tar
 ```
 
-> [!NOTE]
-> You can either create this via a terminal window or your file explorer.
+Run the following commands (or similar):
 
-### Open the new folder in your code editor
+```shell
+mkdir -p terraform-mirror && tar -xvzf terraform-plugins.tar -C terraform-mirror
+```
 
-> [!TIP]
-> If you are using VSCode, we can now do everything from within the code editor.  
-> You can open the terminal pane via Terminal -> New Terminal.
+Create a `terraform.rc` file in the **root** of your project.
+
+```
+provider_installation {
+  filesystem_mirror {
+    path    = "/terraform/mirror"
+    include = ["hashicorp/*"]
+  }
+  direct {
+    exclude = ["hashicorp/*"]
+  }
+}
+```
+
+</details>
 
 ---
 
-## 1. Setup the "fake cloud"
+## 1. Setup and identity
 
 **Goal:** Establish the project foundation.
 
@@ -120,11 +155,7 @@ services:
 > The LocalStack image comes with a predefined healthcheck, by adding the `depends_on` to our AWS CLI container,
 > it means it won't do anything until LocalStack is ready.
 
----
-
-## 2. Identity verification
-
-**Goal:** Confirm connectivity and explore the simulated AWS account.
+### Identity verification
 
 Run the following command:
 
@@ -159,7 +190,7 @@ You should see the following response:
 
 ---
 
-## 3. Initialising Terraform
+## 2. Initialising Terraform
 
 **Goal:** Initialise the IaC engine.
 
@@ -187,6 +218,16 @@ terraform:
   volumes:
     - ./terraform:/terraform
 ```
+
+> [!IMPORTANT]
+> If you are currently in an in-person workshop you need to add two more volumes:
+>
+> ```yaml
+> - ./terraform.rc:/root/.terraformrc:ro
+> - ./terraform-mirror:/terraform/mirror:ro
+> ```
+
+<!--  -->
 
 > [!NOTE]
 > There are scenarios where Terraform needs more than just Terraform, for example: Python.  
@@ -258,7 +299,7 @@ provider "aws" {
 ```
 
 > [!TIP]
-> By definind the `default_tags` you will see that Terraform will automatically add these tags to every applicable resource.
+> By definining the `default_tags` you will see that Terraform will automatically add these tags to every applicable resource.
 
 Run the following command:
 
@@ -310,7 +351,7 @@ Terraform has compared your real infrastructure against your configuration and f
 
 ---
 
-## 4. Provision resources
+## 3. Provision resources
 
 **Goal:** Deploy your first resource and solve environment quirks.
 
@@ -418,7 +459,7 @@ You'll see something similar to the following response:
 
 ---
 
-## 5. Scaling with modules
+## 4. Scaling with modules
 
 **Goal:** Upgrade to professional, community-maintained code.
 
@@ -434,6 +475,19 @@ module "s3_bucket" {
   bucket = "daemon-labs-workshop-module-bucket"
 }
 ```
+
+> [!IMPORTANT]
+> If you are currently in an in-person workshop you need to use the following instead:
+>
+> ```hcl
+> module "s3_bucket" {
+>   source = "/terraform/mirror/modules/s3-bucket"
+>
+>   bucket = "daemon-labs-workshop-module-bucket"
+> }
+> ```
+
+<!--  -->
 
 > [!NOTE]
 > Modules work in a similar way to providers and need downloading before they can be used.
@@ -487,6 +541,41 @@ Outputs:
 workshop_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-bucket"
 workshop_module_bucket_arn = "arn:aws:s3:::daemon-labs-workshop-module-bucket"
 ```
+
+---
+
+## 5. Understanding state
+
+**Goal:** Peek under the hood of the Terraform engine.
+
+### Inspect the "Brain" of Terraform
+
+Open terraform/terraform.tfstate in your code editor.  
+This is a JSON file that acts as the single source of truth for your infrastructure.
+
+> [!IMPORTANT]
+> In a real-world team environment, you would never keep this file on your local machine.  
+> You would store it in a remote "Backend" (like an actual S3 bucket) so your teammates can access and collaborate on same state.
+
+### The "Drift" Challenge
+
+Terraform doesn't just "run" code; it reconciles it. Let's try to "break" the infrastructure manually and see if Terraform notices.
+
+Run the following command:
+
+```shell
+docker compose run --rm aws s3 rb s3://daemon-labs-workshop-bucket
+```
+
+Now run a Terraform plan using the following command:
+
+```shell
+docker compose run --rm terraform plan
+```
+
+> [!NOTE]
+> Terraform compared your Code (main.tf) against your State (terraform.tfstate), then checked the Real World (LocalStack).  
+> It noticed the bucket is gone and will offer to recreate it to bring the world back into alignment.
 
 ---
 
