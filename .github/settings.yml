@@ -1,8 +1,8 @@
 repository:
-  name: workshop-template
-  description: Workshop template
-  homepage: https://github.com/daemon-labs-resources/workshop-template
-  topics: daemon-labs, daemon-labs-resources, workshop-template
+  name: docker-terraform-aws
+  description: Learn to provision AWS resources with Terraform and Docker
+  homepage: https://github.com/daemon-labs-resources/docker-terraform-aws
+  topics: daemon-labs, daemon-labs-resources, docker-terraform-aws
   private: true
   has_issues: true
   has_projects: false
