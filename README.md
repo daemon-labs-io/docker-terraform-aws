@@ -11,18 +11,37 @@ Before beginning this workshop, please ensure your environment is correctly set 
 
 ➡️ **[Prerequisites guide](https://github.com/daemon-labs-resources/prerequisites)**
 
+### Create project folder
+
+Create a new folder for your project:
+
+```shell
+mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
+```
+
+> [!NOTE]
+> You can either create this via a terminal window or your file explorer.
+
+### Open the new folder in your code editor
+
+> [!TIP]
+> If you are using VSCode, we can now do everything from within the code editor.  
+> You can open the terminal pane via Terminal -> New Terminal.
+
 ### ⚠️ In-person workshop prerequisites
+
+> [!CAUTION]  
+> This only works when attending a workshop in person.  
+> Due to having a number of people trying to retrieve Docker images and Terraform providers/modules at the same time, this allows for a more efficient way.
+>
+> If you are **NOT** in an in-person workshop, continue to the next step, Docker images and Terraform providers/modules will be pulled as needed.
 
 <details>
 <summary>If you are in an in-person workshop, expand this section.</summary>
 
-> [!CAUTION]  
-> This only works when attending a workshop in person.  
-> Due to having a number of people trying to retrieve Docker images at the same time, this allows for a more efficient way.
->
-> If you are **NOT** in an in-person workshop, continue to the next step, Docker images will be pulled as needed.
-
 Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
+
+#### Load Docker images
 
 When you see the file listing, download the `workshop-images.tar` file.
 
@@ -34,8 +53,6 @@ Run the following command:
 ```shell
 docker load -i ~/Downloads/workshop-images.tar
 ```
-
-<!-- ### Validate Docker images -->
 
 Run the following command:
 
@@ -57,24 +74,23 @@ docker images
 > _This output is using Rancher Desktop, Docker Desktop and Docker Engine may differ slightly._  
 > _Some values may vary._
 
-</details>
+#### Create a Terraform mirror
 
-### Create project folder
+Create a `terraform.rc` file in the **root** of your project
 
-Create a new folder for your project:
-
-```shell
-mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
+```
+provider_installation {
+  filesystem_mirror {
+    path    = "/terraform/mirror"
+    include = ["hashicorp/*"]
+  }
+  direct {
+    exclude = ["hashicorp/*"]
+  }
+}
 ```
 
-> [!NOTE]
-> You can either create this via a terminal window or your file explorer.
-
-### Open the new folder in your code editor
-
-> [!TIP]
-> If you are using VSCode, we can now do everything from within the code editor.  
-> You can open the terminal pane via Terminal -> New Terminal.
+</details>
 
 ---
 
@@ -187,6 +203,13 @@ terraform:
   volumes:
     - ./terraform:/terraform
 ```
+
+> [!WARNING]
+> If you are currently in an in-person workshop you need to add two more volumes:  
+> `./terraform.rc:/root/.terraformrc:ro`
+> `./terraform-mirror:/terraform/mirror:ro`  
+
+<!--  -->
 
 > [!NOTE]
 > There are scenarios where Terraform needs more than just Terraform, for example: Python.  
