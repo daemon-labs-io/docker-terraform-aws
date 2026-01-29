@@ -31,13 +31,15 @@ mkdir -p ~/Documents/daemon-labs/docker-terraform-aws
 ### ⚠️ In-person workshop prerequisites
 
 > [!CAUTION]  
-> This only works when attending a workshop in person.  
+> **This only works when attending a workshop in person.**  
 > Due to having a number of people trying to retrieve Docker images and Terraform providers/modules at the same time, this allows for a more efficient way.
 >
-> If you are **NOT** in an in-person workshop, continue to the next step, Docker images and Terraform providers/modules will be pulled as needed.
+> If you are **NOT** in an in-person workshop, continue to the next step, Docker images and Terraform providers/modules will be downloaded as needed.
 
 <details>
 <summary>If you are in an in-person workshop, expand this section.</summary>
+
+#### 
 
 Once the facilitator has given you an IP address, open `http://<IP-ADDRESS>:8000` in your browser.
 
@@ -457,6 +459,12 @@ module "s3_bucket" {
   bucket = "daemon-labs-workshop-module-bucket"
 }
 ```
+
+> [!WARNING]
+> If you are currently in an in-person workshop you need to replace the `source` and the `version` with the following:  
+> `source = "/terraform/mirror/modules/s3-bucket"`
+
+<!--  -->
 
 > [!NOTE]
 > Modules work in a similar way to providers and need downloading before they can be used.
